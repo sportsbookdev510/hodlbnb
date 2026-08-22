@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HODL — BSC Meme Coin</title>
+  <meta name="description" content="HODL — The ultimate BNB Smart Chain meme coin. Diamond hands only. Buy on PancakeSwap." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bnb-yellow: #F0B90B;
+      --bnb-gold: #F3BA2F;
+      --bnb-dark: #1E2026;
+      --bnb-darker: #0B0E11;
+      --bnb-card: #181A20;
+      --bnb-border: #2B3139;
+      --bnb-text: #EAECEF;
+      --bnb-muted: #848E9C;
+      --glow: rgba(240, 185, 11, 0.45);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bnb-darker);
+      color: var(--bnb-text);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── Falling HODL coins ── */
+    #falling-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .falling-coin {
+      position: absolute;
+      top: -80px;
+      animation: fall linear forwards;
+      opacity: 0.85;
+      filter: drop-shadow(0 0 8px var(--glow));
+      will-change: transform;
+    }
+
+    @keyframes fall {
+      0%   { transform: translateY(-80px) rotate(0deg) scale(1); opacity: 0; }
+      5%   { opacity: 0.85; }
+      100% { transform: translateY(110vh) rotate(720deg) scale(0.6); opacity: 0.3; }
+    }
+
+    /* ── Animated background grid ── */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(240,185,11,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240,185,11,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 20s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes gridMove {
+      0%   { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(240,185,11,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      animation: pulseGlow 6s ease-in-out infinite;
+    }
+
+    .bg-glow-1 { top: -200px; left: -100px; }
+    .bg-glow-2 { bottom: -200px; right: -100px; animation-delay: -3s; }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50%       { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* ── Navbar ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 40px;
+      background: rgba(11, 14, 17, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(240, 185, 11, 0.15);
+      transition: box-shadow 0.3s;
+    }
+
+    nav.scrolled { box-shadow: 0 4px 30px rgba(240, 185, 11, 0.1); }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-logo img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--bnb-yellow);
+      animation: logoSpin 8s linear infinite;
+    }
+
+    @keyframes logoSpin {
+      0%, 90% { transform: rotate(0deg); }
+      95%      { transform: rotate(360deg); }
+      100%     { transform: rotate(360deg); }
+    }
+
+    .nav-logo span {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--bnb-yellow);
+      letter-spacing: 2px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--bnb-muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 2px;
+      background: var(--bnb-yellow);
+      transform: scaleX(0);
+      transition: transform 0.25s;
+    }
+
+    .nav-links a:hover { color: var(--bnb-yellow); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--bnb-yellow), #FFD54F);
+      color: var(--bnb-darker);
+      box-shadow: 0 4px 20px rgba(240, 185, 11, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 30px rgba(240, 185, 11, 0.6);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--bnb-yellow);
+      border: 2px solid var(--bnb-yellow);
+    }
+
+    .btn-outline:hover {
+      background: rgba(240, 185, 11, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      padding: 120px 40px 60px;
+      text-align: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(240, 185, 11, 0.1);
+      border: 1px solid rgba(240, 185, 11, 0.3);
+      border-radius: 50px;
+      padding: 6px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--bnb-yellow);
+      margin-bottom: 24px;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero-badge .dot {
+      width: 8px; height: 8px;
+      background: #0ECB81;
+      border-radius: 50%;
+      animation: blink 1.5s ease infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    .hero-logo {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 4px solid var(--bnb-yellow);
+      box-shadow: 0 0 40px var(--glow), 0 0 80px rgba(240,185,11,0.2);
+      margin: 0 auto 28px;
+      animation: fadeUp 0.8s 0.1s ease both, float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, #FFD54F, var(--bnb-yellow), #FF8F00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp 0.8s 0.2s ease both, shimmer 3s linear infinite;
+      background-size: 200% auto;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      color: var(--bnb-muted);
+      margin: 16px 0 32px;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 0.8s 0.4s ease both;
+      margin-bottom: 48px;
+    }
+
+    .hero-banner {
+      width: 100%;
+      max-width: 900px;
+      border-radius: 20px;
+      border: 2px solid rgba(240, 185, 11, 0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(240,185,11,0.15);
+      animation: fadeUp 0.8s 0.5s ease both;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* ── Contract address bar ── */
+    .ca-bar {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 0 40px;
+      animation: fadeUp 0.8s 0.6s ease both;
+    }
+
+    .ca-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bnb-card);
+      border: 1px solid var(--bnb-border);
+      border-radius: 14px;
+      padding: 14px 20px;
+    }
+
+    .ca-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--bnb-yellow);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .ca-address {
+      flex: 1;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: var(--bnb-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .copy-btn {
+      background: rgba(240, 185, 11, 0.15);
+      border: 1px solid rgba(240, 185, 11, 0.3);
+      color: var(--bnb-yellow);
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.8rem;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover { background: rgba(240, 185, 11, 0.3); }
+    .copy-btn.copied { background: rgba(14, 203, 129, 0.2); color: #0ECB81; border-color: #0ECB81; }
+
+    /* ── Sections ── */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 80px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--bnb-yellow);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      margin-bottom: 20px;
+      line-height: 1.1;
+    }
+
+    .section-desc {
+      color: var(--bnb-muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 680px;
+    }
+
+    /* ── About ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 48px;
+      align-items: center;
+    }
+
+    .about-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .about-card {
+      background: var(--bnb-card);
+      border: 1px solid var(--bnb-border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+
+    .about-card:hover {
+      border-color: rgba(240, 185, 11, 0.4);
+      transform: translateX(6px);
+      box-shadow: -4px 0 20px rgba(240, 185, 11, 0.1);
+    }
+
+    .about-card-icon {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    .about-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--bnb-yellow);
+    }
+
+    .about-card p {
+      font-size: 0.9rem;
+      color: var(--bnb-muted);
+      line-height: 1.6;
+    }
+
+    .about-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .about-visual img {
+      width: 280px;
+      border-radius: 20px;
+      border: 3px solid var(--bnb-yellow);
+      box-shadow: 0 0 50px var(--glow);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .about-visual::before {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      border-radius: 30px;
+      background: conic-gradient(from 0deg, transparent, var(--bnb-yellow), transparent);
+      animation: rotateBorder 4s linear infinite;
+      opacity: 0.3;
+      z-index: -1;
+    }
+
+    @keyframes rotateBorder {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── How to Buy ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin-top: 48px;
+    }
+
+    .step {
+      background: var(--bnb-card);
+      border: 1px solid var(--bnb-border);
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .step:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(240, 185, 11, 0.15);
+    }
+
+    .step::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--bnb-yellow), #FFD54F);
+    }
+
+    .step-num {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--bnb-yellow), #FFD54F);
+      color: var(--bnb-darker);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 0 auto 16px;
+    }
+
+    .step h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      font-size: 0.88rem;
+      color: var(--bnb-muted);
+      line-height: 1.6;
+    }
+
+    .buy-cta {
+      text-align: center;
+      margin-top: 48px;
+    }
+
+    .btn-lg {
+      padding: 16px 40px;
+      font-size: 1.1rem;
+      border-radius: 50px;
+    }
+
+    /* ── Socials ── */
+    .socials-grid {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+
+    .social-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bnb-card);
+      border: 1px solid var(--bnb-border);
+      border-radius: 16px;
+      padding: 20px 28px;
+      text-decoration: none;
+      color: var(--bnb-text);
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      min-width: 220px;
+    }
+
+    .social-card:hover {
+      border-color: var(--bnb-yellow);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(240, 185, 11, 0.15);
+    }
+
+    .social-icon {
+      width: 48px; height: 48px;
+      background: rgba(240, 185, 11, 0.12);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .social-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .social-card p {
+      font-size: 0.8rem;
+      color: var(--bnb-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--bnb-border);
+      border-bottom: 1px solid var(--bnb-border);
+      background: rgba(24, 26, 32, 0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 160px;
+      padding: 28px 20px;
+      text-align: center;
+      border-right: 1px solid var(--bnb-border);
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--bnb-yellow);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--bnb-muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 40px;
+      border-top: 1px solid var(--bnb-border);
+      color: var(--bnb-muted);
+      font-size: 0.85rem;
+    }
+
+    footer strong { color: var(--bnb-yellow); }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Mobile menu ── */
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+    }
+
+    .menu-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--bnb-yellow);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        flex-direction: column;
+        background: rgba(11, 14, 17, 0.97);
+        padding: 20px;
+        gap: 16px;
+        border-bottom: 1px solid rgba(240,185,11,0.15);
+      }
+      .nav-links.open { display: flex; }
+      .menu-toggle { display: flex; }
+      .about-grid { grid-template-columns: 1fr; }
+      .about-visual { order: -1; }
+      section, .hero { padding-left: 20px; padding-right: 20px; }
+      .ca-bar { padding: 0 20px; }
+      .stat { border-right: none; border-bottom: 1px solid var(--bnb-border); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Falling coins container -->
+  <div id="falling-container" aria-hidden="true"></div>
+
+  <!-- Background effects -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- Navbar -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">
+      <img src="./logo.png" alt="HODL Logo" />
+      <span>HODL</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">About</a></li>
+      <li><a href="#how-to-buy">How to Buy</a></li>
+      <li><a href="#socials">Socials</a></li>
+      <li>
+        <a href="https://pancakeswap.finance/swap?chain=bsc&inputCurrency=0xComingSoon&outputCurrency=BNB&exactAmount=&exactField=INPUT" target="_blank" rel="noopener" class="btn btn-primary" style="padding:10px 22px;font-size:0.85rem;">
+          Buy HODL
+        </a>
+      </li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Live on BNB Smart Chain
+    </div>
+    <img src="./logo.png" alt="HODL" class="hero-logo" />
+    <h1>$HODL</h1>
+    <p class="hero-sub">Diamond hands only. The ultimate BSC meme coin built for true believers.<br/>Don't sell. Just HODL.</p>
+    <div class="hero-actions">
+      <a href="https://pancakeswap.finance/swap?chain=bsc&inputCurrency=0xComingSoon&outputCurrency=BNB&exactAmount=&exactField=INPUT" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+        🥞 Buy on PancakeSwap
+      </a>
+      <a href="#about" class="btn btn-outline btn-lg">Learn More</a>
+    </div>
+    <img src="./banner.png" alt="HODL Banner" class="hero-banner" />
+  </header>
+
+  <!-- Contract Address -->
+  <div class="ca-bar">
+    <div class="ca-inner">
+      <span class="ca-label">CA</span>
+      <span class="ca-address" id="caText">0xComingSoon</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyCA()">Copy</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat reveal">
+      <div class="stat-value">BSC</div>
+      <div class="stat-label">Network</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-value">HODL</div>
+      <div class="stat-label">Symbol</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-value">∞</div>
+      <div class="stat-label">Diamond Hands</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-value">🥞</div>
+      <div class="stat-label">PancakeSwap</div>
+    </div>
+  </div>
+
+  <!-- About -->
+  <section id="about">
+    <div class="reveal">
+      <span class="section-label">About</span>
+      <h2 class="section-title">What is $HODL?</h2>
+      <p class="section-desc">
+        $HODL is a community-driven meme coin on the BNB Smart Chain, born from the legendary crypto mantra:
+        <strong style="color:var(--bnb-yellow)">Hold On for Dear Life.</strong>
+        Built for degens, diamond hands, and true believers who never sell.
+      </p>
+    </div>
+    <div class="about-grid">
+      <div class="about-cards reveal">
+        <div class="about-card">
+          <div class="about-card-icon">💎</div>
+          <h3>Diamond Hands Only</h3>
+          <p>$HODL is for holders who believe in the mission. No paper hands allowed. We ride together to the moon.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🔥</div>
+          <h3>Community Powered</h3>
+          <p>100% community-driven with no dev wallet nonsense. The power belongs to the holders — always.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">⚡</div>
+          <h3>BNB Smart Chain</h3>
+          <p>Built on BSC for fast, cheap transactions. Trade seamlessly on PancakeSwap with BNB.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🚀</div>
+          <h3>To The Moon</h3>
+          <p>We're not here for quick flips. $HODL is a movement. Join the army and never look back.</p>
+        </div>
+      </div>
+      <div class="about-visual reveal">
+        <img src="./hodl.png" alt="HODL Character" />
+      </div>
+    </div>
+  </section>
+
+  <!-- How to Buy -->
+  <section id="how-to-buy">
+    <div class="reveal">
+      <span class="section-label">How to Buy</span>
+      <h2 class="section-title">Get Your $HODL</h2>
+      <p class="section-desc">Follow these simple steps to become a $HODL holder on PancakeSwap.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <h3>Get a Wallet</h3>
+        <p>Download MetaMask or Trust Wallet and set up your BNB Smart Chain wallet. Fund it with BNB.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <h3>Go to PancakeSwap</h3>
+        <p>Visit PancakeSwap, connect your wallet, and make sure you're on the BSC network.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <h3>Swap BNB for HODL</h3>
+        <p>Paste the contract address <strong style="color:var(--bnb-yellow)">0xComingSoon</strong>, set slippage to 5–10%, and swap!</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">4</div>
+        <h3>HODL Forever</h3>
+        <p>Add $HODL to your wallet, join the community, and never sell. Diamond hands only. 💎🙌</p>
+      </div>
+    </div>
+    <div class="buy-cta reveal">
+      <a href="https://pancakeswap.finance/swap?chain=bsc&inputCurrency=0xComingSoon&outputCurrency=BNB&exactAmount=&exactField=INPUT" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+        🥞 Buy $HODL on PancakeSwap
+      </a>
+    </div>
+  </section>
+
+  <!-- Socials -->
+  <section id="socials">
+    <div class="reveal">
+      <span class="section-label">Community</span>
+      <h2 class="section-title">Join the HODL Army</h2>
+      <p class="section-desc">Connect with fellow diamond hands. Follow us and spread the word.</p>
+    </div>
+    <div class="socials-grid reveal">
+      <a href="https://x.com/hodlcoin_bsc" target="_blank" rel="noopener" class="social-card">
+        <div class="social-icon">𝕏</div>
+        <div>
+          <h3>Twitter / X</h3>
+          <p>@hodlcoin_bsc</p>
+        </div>
+      </a>
+      <a href="https://pancakeswap.finance/swap?chain=bsc&inputCurrency=0xComingSoon&outputCurrency=BNB&exactAmount=&exactField=INPUT" target="_blank" rel="noopener" class="social-card">
+        <div class="social-icon">🥞</div>
+        <div>
+          <h3>PancakeSwap</h3>
+          <p>Buy $HODL now</p>
+        </div>
+      </a>
+      <a href="https://bscscan.com/token/0xComingSoon" target="_blank" rel="noopener" class="social-card">
+        <div class="social-icon">🔍</div>
+        <div>
+          <h3>BscScan</h3>
+          <p>View on explorer</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2026 <strong>$HODL</strong> — Built on BNB Smart Chain. Not financial advice. DYOR. 💎🙌</p>
+  </footer>
+
+  <script>
+    /* ── Falling HODL coins ── */
+    const fallingContainer = document.getElementById('falling-container');
+    const COIN_COUNT = 35;
+
+    function createCoin() {
+      const img = document.createElement('img');
+      img.src = './hodl.png';
+      img.className = 'falling-coin';
+      img.alt = '';
+      img.draggable = false;
+
+      const size = Math.random() * 50 + 30;
+      img.style.width = size + 'px';
+      img.style.height = 'auto';
+      img.style.left = Math.random() * 100 + 'vw';
+
+      const duration = Math.random() * 6 + 5;
+      const delay = Math.random() * 8;
+      img.style.animationDuration = duration + 's';
+      img.style.animationDelay = delay + 's';
+
+      fallingContainer.appendChild(img);
+
+      img.addEventListener('animationend', () => {
+        img.remove();
+        createCoin();
+      });
+    }
+
+    for (let i = 0; i < COIN_COUNT; i++) {
+      setTimeout(createCoin, i * 200);
+    }
+
+    /* ── Copy CA ── */
+    function copyCA() {
+      const ca = '0xComingSoon';
+      navigator.clipboard.writeText(ca).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    /* ── Navbar scroll ── */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    /* ── Mobile menu ── */
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+
+    /* ── Scroll reveal ── */
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    revealEls.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
